@@ -24,6 +24,9 @@ See: http://docs.translatehouse.org/projects/translate-toolkit/en/latest/command
 for examples and usage instructions.
 """
 
+from translate.convert.base import BaseConvertor
+from translate.misc.parser import BaseParser
+
 from translate.convert import convert
 from translate.storage import html, po
 
@@ -71,7 +74,24 @@ def converthtml(inputfile, outputfile, templatefile, includefuzzy=False,
     return 1
 
 
+class Po2HTMLConvertor(BaseConvertor):
+    pass
+
+
+class Po2HTMLParser(BaseParser):
+    common_options = ['threshold', 'fuzzy']
+    extract = False
+
+
 def main(argv=None):
+    # New parser:
+    parser = Po2HTMLParser(description=__doc__)
+    options = parser.parse_args()
+    convertor = Po2HTMLConvertor(options)
+    convertor.convert()
+    return
+
+    # Old code:
     formats = {
         ("po", "htm"): ("htm", converthtml),
         ("po", "html"): ("html", converthtml),

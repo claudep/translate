@@ -25,6 +25,8 @@ See: http://docs.translatehouse.org/projects/translate-toolkit/en/latest/command
 for examples and usage instructions.
 """
 
+from translate.convert.base import BaseConvertor
+from translate.misc.parser import BaseParser
 from translate.storage import html, po
 
 
@@ -59,7 +61,33 @@ def converthtml(inputfile, outputfile, templates, includeuntagged=False,
     return 1
 
 
+class HTML2PoConvertor(BaseConvertor):
+    prog_name = 'html2po'
+    InStoreClass = html.htmlfile
+    OutStoreClass = po.pofile
+
+
+class HTML2POParser(BaseParser):
+    common_options = []
+    extract = True
+
+    def __init__(self, *args, **kwargs):
+        super(HTML2POParser, self).__init__(*args, **kwargs)
+        self.parser.add_argument("-u", "--untagged", dest="includeuntagged", action="store_true",
+                                 help="include untagged sections")
+        self.parser.add_argument("--keepcomments", action="store_true",
+                                 help="preserve html comments as translation notes in the output")
+
+
 def main(argv=None):
+    # New parser:
+    parser = HTML2POParser(description=__doc__)
+    options = parser.parse_args()
+    convertor = HTML2PoConvertor(options)
+    convertor.convert()
+    return
+
+    # Old code:
     from translate.convert import convert
     formats = {
         "html": ("po", converthtml),
